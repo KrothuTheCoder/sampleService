@@ -18,4 +18,10 @@ public class SomethingController : ControllerBase
     {
         return $"This was passed to me {input}, there I did something";
     }
+    
+    [HttpPost(Name = "PostSomething")]
+    public string Post(string input)
+    {
+        return $"This was passed to me {input}, there I did something";
+    }
 }
