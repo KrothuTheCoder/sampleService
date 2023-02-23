@@ -2,7 +2,9 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
 name: Build and deploy ASP.Net Core app to Azure Web App - theDoSomethingService
-
+defaults:
+  run:
+    working-directory: DoSomethingService
 on:
   push:
     branches:
