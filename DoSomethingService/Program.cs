@@ -7,7 +7,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options => 
 { options.SwaggerDoc("v1", new OpenApiInfo
 {
-Version = "v1.1"});
+Version = "v1.1",
+Title = "The DoSomething API"
+});
 });
 
 var app = builder.Build();
