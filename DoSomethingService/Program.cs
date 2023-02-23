@@ -4,9 +4,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen("v1", new OpenApiInfo
+builder.Services.AddSwaggerGen(options => 
+{ options.SwaggerDoc("v1", new OpenApiInfo
 {
-Version = "v1.1"
+Version = "v1.1"});
 });
 
 var app = builder.Build();
