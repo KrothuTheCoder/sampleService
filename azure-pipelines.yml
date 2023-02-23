@@ -28,7 +28,23 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: VSTest@2
+# Azure Web App v1
+# Deploy an Azure Web App for Linux or Windows.
+- task: AzureWebApp@1
   inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    azureSubscription: 'SBX01'
+    appType: 'webApp' 
+    appName: 'theDoSomethingService' 
+    #deployToSlotOrASE: false # boolean. Optional. Use when appType != "". Deploy to Slot or App Service Environment. Default: false.
+    #resourceGroupName: # string. Required when deployToSlotOrASE = true. Resource group. 
+    #slotName: 'production' # string. Required when deployToSlotOrASE = true. Slot. Default: production.
+    package: '$(System.DefaultWorkingDirectory)/**/*.zip' # string. Required. Package or folder. Default: $(System.DefaultWorkingDirectory)/**/*.zip.
+    #customDeployFolder: # string. Optional. Use when package EndsWith .war. Custom Deploy Folder. 
+    #runtimeStack: # string. Optional. Use when appType = webAppLinux. Runtime stack. 
+    #startUpCommand: # string. Optional. Use when appType = webAppLinux. Startup command. 
+  # Application and Configuration Settings
+    #customWebConfig: # string. Optional. Use when appType != webAppLinux && package NotEndsWith .war. Generate web.config parameters for Python, Node.js, Go and Java apps. 
+    #appSettings: # string. App settings. 
+    #configurationStrings: # string. Configuration settings. 
+  # Additional Deployment Options
+    deploymentMethod: 'auto' # 'auto' | 'zipDeploy' | 'runFromPackage'. Required. Deployment method. Default: auto.
