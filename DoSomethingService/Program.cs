@@ -2,7 +2,8 @@ using Microsoft.OpenApi.Models;
 
 var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
-
+var apiVersions = new Dictionary<string, string>();
+apiVersions.Add("v1", "SomethingV1");
 
 builder.Services.AddCors(options =>
 {
@@ -15,22 +16,25 @@ builder.Services.AddCors(options =>
 });
 
 
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Version = "v1.1",
-        Title = "The DoSomething API"
-    });
-});
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(
+    options =>
+    {
+        // build a swagger endpoint for each discovered API version
+        foreach (var description in apiVersions)
+        {
+            var url = $"/swagger/{description.Key}/swagger.json";
+            var name = description.Value.ToUpperInvariant();
+            options.SwaggerEndpoint(url, name);
+        }
+    });
+
 app.UseHttpsRedirection();
 app.UseCors(myAllowSpecificOrigins);
 //app.UseAuthorization();
