@@ -6,7 +6,7 @@ namespace DoSomethingService.Controllers.v1;
 /// 
 /// </summary>
 [ApiController]
-[Route("[controller]")]
+[Route("v1/something")]
 public class SomethingV1Controller : ControllerBase
 {
     private readonly ILogger<SomethingV1Controller> _logger;
@@ -25,7 +25,7 @@ public class SomethingV1Controller : ControllerBase
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [HttpGet(Name = "DoSomething")]
+    [HttpGet("DoSomething")]
     public string Get(string input)
     {
         return $"This was passed to me {input}, there I did something";
@@ -36,7 +36,7 @@ public class SomethingV1Controller : ControllerBase
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [HttpPost(Name = "PostSomething")]
+    [HttpPost("PostSomething")]
     public string Post(string input)
     {
         return $"This was passed to me {input}, there I did something";
