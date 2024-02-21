@@ -51,6 +51,7 @@ public class SomethingController : ControllerBase
     /// <param name="numberOfTimes">The number of times you want it to do something</param>
     /// <returns>What happened</returns>
     [MapToApiVersion("2.0")]
+    [HttpGet("DoSomething")]
     public string Get(string whatToDo, int numberOfTimes)
     {
         var returnString = "";
