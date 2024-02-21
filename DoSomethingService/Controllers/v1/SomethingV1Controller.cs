@@ -6,16 +6,17 @@ namespace DoSomethingService.Controllers.v1;
 /// This is an api to return some data in a made up senario
 /// </summary>
 [ApiController]
-[Route("v1/something")]
-public class SomethingV1Controller : ControllerBase
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+public class SomethingController : ControllerBase
 {
-    private readonly ILogger<SomethingV1Controller> _logger;
+    private readonly ILogger<SomethingController> _logger;
 
     /// <summary>
     /// Setting up the code so it can do things
     /// </summary>
     /// <param name="logger">The logger so we know if things have been done</param>
-    public SomethingV1Controller(ILogger<SomethingV1Controller> logger)
+    public SomethingController(ILogger<SomethingController> logger)
     {
         _logger = logger;
     }
