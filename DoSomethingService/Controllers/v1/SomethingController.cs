@@ -5,7 +5,7 @@ namespace DoSomethingService.Controllers.v1;
 /// <summary>
 /// This is an api to return some data in a made up senario
 /// </summary>
-[Route("api/v{version:apiVersion}/[controller]")]
+[Route("api/v1/[controller]")]
 [ApiController]
 [ApiVersion("1.0")]
 public class SomethingController : ControllerBase
@@ -37,7 +37,7 @@ public class SomethingController : ControllerBase
     /// </summary>
     /// <param name="whatToDo">The thing you want it to do</param>
     /// <returns>What happened</returns>
-    [HttpGet("DoSomething")]
+    [HttpGet("WhatSomethingToDo")]
     public string Get(string whatToDo)
     {
         return $"You wanted me to {whatToDo}, there I did something";
