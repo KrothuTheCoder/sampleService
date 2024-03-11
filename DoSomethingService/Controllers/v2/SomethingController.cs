@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace DoSomethingService.Controllers.v1;
+namespace DoSomethingService.Controllers.v2;
 
 /// <summary>
 /// This is an api to return some data in a made up senario
 /// </summary>
-[Route("api/v1/[controller]")]
+[Route("api/v2/[controller]")]
 [ApiController]
-[ApiVersion("1.0")]
+[ApiVersion("2.0")]
 public class SomethingController : ControllerBase
 {
     private readonly ILogger<SomethingController> _logger;
@@ -26,7 +26,7 @@ public class SomethingController : ControllerBase
     /// </summary>
     /// <returns>What happened</returns>
     [HttpGet("DoSomething")]
-    [ApiExplorerSettings(GroupName ="v1")]
+    [ApiExplorerSettings(GroupName ="v2")]
     public string Get()
     {
         return $"You wanted me to do something, there I did something";
@@ -39,8 +39,8 @@ public class SomethingController : ControllerBase
     /// <param name="whatToDo">The thing you want it to do</param>
     /// <returns>What happened</returns>
     [HttpGet("WhatSomethingToDo")]
-    [ApiExplorerSettings(GroupName ="v1")]
-    public string Get(string whatToDo)
+    [ApiExplorerSettings(GroupName ="v2")]
+    public string Get(int whatToDo)
     {
         return $"You wanted me to {whatToDo}, there I did something";
     }
@@ -51,9 +51,23 @@ public class SomethingController : ControllerBase
     /// <param name="whatToDo">The thing you want it to do</param>
     /// <returns>What happened</returns>
     [HttpPost("PostSomething")]
-    [ApiExplorerSettings(GroupName ="v1")]
+    [ApiExplorerSettings(GroupName ="v2")]
     public string Post(string whatToDo)
     {
         return $"This was passed to me {whatToDo}, there I did something";
     }
+
+    /// <summary>
+    /// If you need to do something then, just tell it
+    /// what you want to do
+    /// </summary>
+    /// <param name="whatToDo">The thing you want it to do</param>
+    /// <returns>What happened</returns>
+    [HttpGet("WhatAnotherSomethingToDo")]
+    [ApiExplorerSettings(GroupName ="v2")]
+    public string GetAnother(int whatToDo)
+    {
+        return $"You wanted me to {whatToDo}, there I did something";
+    }
+   
 }

@@ -1,9 +1,7 @@
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerUI;
-using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using System.Reflection;
 
 
 var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -23,41 +21,41 @@ builder.Services.AddCors(options =>
         });
 });
 
-// builder.Services.AddControllers();
-builder.Services.AddControllers(options =>
-{
-    options.Conventions.Add(new GroupingByNamespaceConvention());
+builder.Services.AddMvc(c=> {
+    c.Conventions.Add(new ApiExplorerGroupPerVersionConvention());
 });
-
-builder.Services.AddApiVersioning();
-
-builder.Services.AddApiVersioning(options =>
-    {
-        options.DefaultApiVersion = new ApiVersion(1, 0);
-        options.AssumeDefaultVersionWhenUnspecified = true;
-        options.ReportApiVersions = true;
-        options.ApiVersionReader = new HeaderApiVersionReader("api-version");
-    })
-    .AddVersionedApiExplorer(options =>
-    {
-        options.GroupNameFormat = "'v'VVV";
-        options.SubstituteApiVersionInUrl = true;
-    });
 
 builder.Services.AddSwaggerGen(options =>
 {
-     options.SwaggerDoc("v1", new OpenApiInfo { Title = "My API - V1", Version = "v1" });
+     options.SwaggerDoc("v1", new OpenApiInfo { Title = "My API - V1", Version = "v1" ,
+        Description = "An ASP.NET Core Web API for managing ToDo items",
+        TermsOfService = new Uri("https://example.com/terms"),
+        Contact = new OpenApiContact
+        {
+            Name = "Example Contact",
+            Url = new Uri("https://example.com/contact")
+        },
+        License = new OpenApiLicense
+        {
+            Name = "Example License",
+            Url = new Uri("https://example.com/license")
+        }});
+     options.SwaggerDoc("v2", new OpenApiInfo { Title = "My API - V2", Version = "v2",
+        Description = "An ASP.NET Core Web API for managing ToDo items",
+        TermsOfService = new Uri("https://example.com/terms"),
+        Contact = new OpenApiContact
+        {
+            Name = "Example Contact",
+            Url = new Uri("https://example.com/contact")
+        },
+        License = new OpenApiLicense
+        {
+            Name = "Example License",
+            Url = new Uri("https://example.com/license")
+        } });
 
-    // var provider = builder.GetRequiredService<IApiVersionDescriptionProvider>();
-
-    // foreach (var description in provider.ApiVersionDescriptions)
-    // {
-    //     options.SwaggerDoc(description.GroupName, new OpenApiInfo
-    //     {
-    //         Title = $"Your API {description.ApiVersion}",
-    //         Version = description.ApiVersion.ToString()
-    //     });
-    // }
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
 var app = builder.Build();
@@ -68,30 +66,37 @@ app.UseSwaggerUI(options =>
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-
-        // Display Swagger UI for each discovered API version
-        // foreach (var description in provider.ApiVersionDescriptions)
-        // {
-        //     options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
-        // }
-        // options.DocExpansion(DocExpansion.None);
+        options.SwaggerEndpoint("/swagger/v2/swagger.json", "My API V2");
     });
+
+    options.DefaultModelExpandDepth(2);
+    options.DefaultModelRendering(ModelRendering.Model);
+    options.DefaultModelsExpandDepth(-1);
+    options.DisplayOperationId();
+    options.DisplayRequestDuration();
+    options.DocExpansion(DocExpansion.None);
+    options.EnableDeepLinking();
+    options.EnableFilter();
+    options.MaxDisplayedTags(5);
+    options.ShowExtensions();
+    options.ShowCommonExtensions();
+    options.EnableValidator();
+    options.SupportedSubmitMethods(SubmitMethod.Get, SubmitMethod.Head);
+    options.UseRequestInterceptor("(request) => { return request; }");
+    options.UseResponseInterceptor("(response) => { return response; }");
 });
 
 app.UseHttpsRedirection();
 app.UseCors(myAllowSpecificOrigins);
 
-app.MapControllers().WithOpenApi();
-
 app.Run();
 
-public class GroupingByNamespaceConvention : IControllerModelConvention
+public class ApiExplorerGroupPerVersionConvention : IControllerModelConvention
 {
     public void Apply(ControllerModel controller)
     {
         var controllerNamespace = controller.ControllerType.Namespace;
-        var apiVersion = controllerNamespace.Split(".").Last().ToLower();
-        if (!apiVersion.StartsWith("v")) { apiVersion = "v1"; }
-        controller.ApiExplorer.GroupName = apiVersion;
+        var apiVersion = controllerNamespace.Split('.').Last().ToLower();
+        controller.ApiExplorer.GroupName=apiVersion;
     }
 }
