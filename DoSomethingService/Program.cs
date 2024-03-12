@@ -1,10 +1,16 @@
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerUI;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using System.Reflection;
+
 
 var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddApplicationInsightsTelemetry();
+
 var apiVersions = new Dictionary<string, string>();
-apiVersions.Add("v1", "SomethingV1");
-apiVersions.Add("v2", "SomethingV2");
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: myAllowSpecificOrigins,
@@ -15,50 +21,82 @@ builder.Services.AddCors(options =>
         });
 });
 
-builder.Services.AddControllers();
+builder.Services.AddMvc(c=> {
+    c.Conventions.Add(new ApiExplorerGroupPerVersionConvention());
+});
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-/*options =>
+builder.Services.AddSwaggerGen(options =>
 {
-    /*options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Version = "v1",
-        Title = "The DoSomething API"
-    });
-    options.SwaggerDoc("v2", new OpenApiInfo
-    {
-        Version = "v2",
-        Title = "The DoSomething API"
-    });#1#
-    //options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
-});*/
+     options.SwaggerDoc("v1", new OpenApiInfo { Title = "My API - V1", Version = "v1" ,
+        Description = "An ASP.NET Core Web API for managing ToDo items",
+        TermsOfService = new Uri("https://example.com/terms"),
+        Contact = new OpenApiContact
+        {
+            Name = "Example Contact",
+            Url = new Uri("https://example.com/contact")
+        },
+        License = new OpenApiLicense
+        {
+            Name = "Example License",
+            Url = new Uri("https://example.com/license")
+        }});
+     options.SwaggerDoc("v2", new OpenApiInfo { Title = "My API - V2", Version = "v2",
+        Description = "An ASP.NET Core Web API for managing ToDo items",
+        TermsOfService = new Uri("https://example.com/terms"),
+        Contact = new OpenApiContact
+        {
+            Name = "Example Contact",
+            Url = new Uri("https://example.com/contact")
+        },
+        License = new OpenApiLicense
+        {
+            Name = "Example License",
+            Url = new Uri("https://example.com/license")
+        } });
+
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+});
 
 var app = builder.Build();
 
 app.UseSwagger();
-app.UseSwaggerUI();
-
-/*options =>*/
-    /*{
-        options.SwaggerEndpoint($"/v1/Something/swagger/swagger.json", "SomethingV1");
-        options.SwaggerEndpoint($"/swagger/v2/Something/swagger.json", "SomethingV2");
-    }*/
-    /*options =>
+app.UseSwaggerUI(options =>
+{
+    app.UseSwaggerUI(options =>
     {
-        // build a swagger endpoint for each discovered API version
-        foreach (var description in apiVersions)
-        {
-            var name = description.Value.ToUpperInvariant();
-            var url = $"/swagger/{description.Key}/Something/swagger.json";
-            options.SwaggerEndpoint(url, name);
-        }
-    }*/
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+        options.SwaggerEndpoint("/swagger/v2/swagger.json", "My API V2");
+    });
+
+    options.DefaultModelExpandDepth(2);
+    options.DefaultModelRendering(ModelRendering.Model);
+    options.DefaultModelsExpandDepth(-1);
+    options.DisplayOperationId();
+    options.DisplayRequestDuration();
+    options.DocExpansion(DocExpansion.None);
+    options.EnableDeepLinking();
+    options.EnableFilter();
+    options.MaxDisplayedTags(5);
+    options.ShowExtensions();
+    options.ShowCommonExtensions();
+    options.EnableValidator();
+    options.SupportedSubmitMethods(SubmitMethod.Get, SubmitMethod.Head);
+    options.UseRequestInterceptor("(request) => { return request; }");
+    options.UseResponseInterceptor("(response) => { return response; }");
+});
 
 app.UseHttpsRedirection();
 app.UseCors(myAllowSpecificOrigins);
-//app.UseAuthorization();
-
-app.MapControllers().WithOpenApi();
 
 app.Run();
+
+public class ApiExplorerGroupPerVersionConvention : IControllerModelConvention
+{
+    public void Apply(ControllerModel controller)
+    {
+        var controllerNamespace = controller.ControllerType.Namespace;
+        var apiVersion = controllerNamespace.Split('.').Last().ToLower();
+        controller.ApiExplorer.GroupName=apiVersion;
+    }
+}
