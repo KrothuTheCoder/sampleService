@@ -20,7 +20,7 @@ builder.Services.AddCors(options =>
                 "https://thedosomethingservice.azurewebsites.net");
         });
 });
-
+builder.Services.AddControllers();
 builder.Services.AddMvc(c=> {
     c.Conventions.Add(new ApiExplorerGroupPerVersionConvention());
 });
@@ -89,6 +89,7 @@ app.UseSwaggerUI(options =>
 app.UseHttpsRedirection();
 app.UseCors(myAllowSpecificOrigins);
 
+app.MapControllers().WithOpenApi();
 app.Run();
 
 public class ApiExplorerGroupPerVersionConvention : IControllerModelConvention
