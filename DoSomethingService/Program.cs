@@ -2,12 +2,27 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using System.Reflection;
+using Microsoft.ApplicationInsights.Extensibility;
 
 
 var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddApplicationInsightsTelemetry();
+builder.Services.AddSingleton<ITelemetryInitializer, UpstreamProxyTraceHeaderTelemetryInitializer>((serviceProvider)=> {
+    var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+    // Az App Gateway and Front door trace/correlation headers are defaulted
+    return new UpstreamProxyTraceHeaderTelemetryInitializer(httpContextAccessor);
+});
+
+builder.Services.AddHttpContextAccessor();
+
+var aiOptions = new Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions();
+aiOptions.EnableAdaptiveSampling = false;
+aiOptions.EnableQuickPulseMetricStream = true;
+aiOptions.EnableRequestTrackingTelemetryModule = true;
+aiOptions.EnableDependencyTrackingTelemetryModule = true;
+
+builder.Services.AddApplicationInsightsTelemetry(aiOptions);
 
 var apiVersions = new Dictionary<string, string>();
 
