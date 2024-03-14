@@ -31,7 +31,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: myAllowSpecificOrigins,
         policy =>
         {
-            policy.WithOrigins("https://api.hakabo.com","https://web.hakabo.com"
+            policy.WithOrigins("https://api.hakabo.com","https://web.hakabo.com",
                 "https://thedosomethingservice.azurewebsites.net");
         });
 });
