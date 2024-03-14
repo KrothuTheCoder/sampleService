@@ -32,7 +32,7 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy.WithOrigins("https://api.hakabo.com","https://web.hakabo.com",
-                "https://thedosomethingservice.azurewebsites.net");
+                "https://thedosomethingservice.azurewebsites.net", "http://localhost:3000/");
         });
 });
 builder.Services.AddControllers();
