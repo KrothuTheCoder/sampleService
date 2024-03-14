@@ -27,6 +27,9 @@ builder.Services.AddMvc(c=> {
 
 builder.Services.AddSwaggerGen(options =>
 {
+    options.AddServer(new OpenApiServer(){
+        Url = "https://thedosomethingservice.azurewebsites.net/"
+    });
      options.SwaggerDoc("v1", new OpenApiInfo { Title = "My API - V1", Version = "v1" ,
         Description = "An ASP.NET Core Web API for managing ToDo items",
         TermsOfService = new Uri("https://example.com/terms"),
