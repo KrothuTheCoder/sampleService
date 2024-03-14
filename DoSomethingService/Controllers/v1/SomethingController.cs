@@ -27,9 +27,27 @@ public class SomethingController : ControllerBase
     /// <returns>What happened</returns>
     [HttpGet("DoSomething")]
     [ApiExplorerSettings(GroupName ="v1")]
-    public string Get()
+    public IActionResult Get()
     {
-        return $"You wanted me to do something, there I did something";
+        return ConvertToJsonObject("You wanted me to do something, there I did something");
+   
+    }
+
+
+    /// <summary>
+    /// If you need to do something then it will
+    /// </summary>
+    /// <returns>What happened</returns>
+    private ContentResult ConvertToJsonObject(string input)
+    {
+        var jsonString = "{\"key\":\""+input+"\"}";
+        //string jsonString = $"{\"key\":\"{input}\"}"; 
+        return new ContentResult
+            {
+                Content = jsonString,
+                ContentType = "application/json",
+                StatusCode = 200   // You can set the status code as needed
+            };
     }
 
     /// <summary>
@@ -40,9 +58,9 @@ public class SomethingController : ControllerBase
     /// <returns>What happened</returns>
     [HttpGet("WhatSomethingToDo")]
     [ApiExplorerSettings(GroupName ="v1")]
-    public string Get(string whatToDo)
+    public IActionResult Get(string whatToDo)
     {
-        return $"You wanted me to {whatToDo}, there I did something";
+        return ConvertToJsonObject("You wanted me to {whatToDo}, there I did something");
     }
    
     /// <summary>
@@ -52,8 +70,8 @@ public class SomethingController : ControllerBase
     /// <returns>What happened</returns>
     [HttpPost("PostSomething")]
     [ApiExplorerSettings(GroupName ="v1")]
-    public string Post(string whatToDo)
+    public IActionResult Post(string whatToDo)
     {
-        return $"This was passed to me {whatToDo}, there I did something";
+        return ConvertToJsonObject("This was passed to me {whatToDo}, there I did something");
     }
 }
