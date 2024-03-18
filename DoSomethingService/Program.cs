@@ -31,8 +31,15 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: myAllowSpecificOrigins,
         policy =>
         {
-            policy.WithOrigins("*","http://localhost:3000");
+            policy.WithOrigins("*","http://localhost:3000","http://web.hakabo.com","http://*.hakabo.com");
         });
+        options.AddPolicy("AllowAllOrigins",
+            builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            });
 });
 builder.Services.AddControllers();
 builder.Services.AddMvc(c=> {
