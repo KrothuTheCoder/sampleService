@@ -82,10 +82,10 @@ public class SomethingController : ControllerBase
         return ConvertToJsonObject("This was passed to me {whatToDo}, there I did something");
     }
 
-    // [HttpOptions]
-    // public IActionResult Options()
-    // {
-    //     Response.Headers.Add("ALLOW","GET","OPTIONS");
-    //     return Ok();
-    // }
+    [HttpOptions]
+    public IActionResult Options()
+    {
+        Response.Headers.Add("Allow", "GET, POST, OPTIONS");
+        return Ok();
+    }
 }
