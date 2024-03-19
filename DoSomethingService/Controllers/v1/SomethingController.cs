@@ -47,6 +47,8 @@ public class SomethingController : ControllerBase
     /// <returns>What happened</returns>
     private ContentResult ConvertToJsonObject(string input)
     {
+        Response.Headers.Add("Access-Control-Allow-Origin", "https://web.hakabo.com");
+        Response.Headers.Add("x-peters-test", "https://web.hakabo.com");
         var jsonString = "{\"key\":\""+input+"\"}";
         //string jsonString = $"{\"key\":\"{input}\"}"; 
         return new ContentResult
