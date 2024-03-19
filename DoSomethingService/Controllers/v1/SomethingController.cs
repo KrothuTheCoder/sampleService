@@ -10,7 +10,7 @@ namespace DoSomethingService.Controllers.v1;
 [Route("api/v1/[controller]")]
 [ApiController]
 [ApiVersion("1.0")]
-[EnableCors("_myAllowSpecificOrigins")]
+[EnableCors("myAllowSpecificOrigins")]
 public class SomethingController : ControllerBase
 {
     private readonly ILogger<SomethingController> _logger;
@@ -49,7 +49,7 @@ public class SomethingController : ControllerBase
     /// <returns>What happened</returns>
     private ContentResult ConvertToJsonObject(string input)
     {
-        Response.Headers.Add("Access-Control-Allow-Origin", "https://web.hakabo.com");
+        //Response.Headers.Add("Access-Control-Allow-Origin", "https://web.hakabo.com");
         Response.Headers.Add("x-peters-test", "https://web.hakabo.com");
         var jsonString = "{\"key\":\""+input+"\"}";
         //string jsonString = $"{\"key\":\"{input}\"}"; 

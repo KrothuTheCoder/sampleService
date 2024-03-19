@@ -6,7 +6,7 @@ using Microsoft.ApplicationInsights.Extensibility;
 using System.Net;
 
 
-var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
+var myAllowSpecificOrigins = "myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<ITelemetryInitializer, UpstreamProxyTraceHeaderTelemetryInitializer>((serviceProvider)=> {
@@ -110,9 +110,8 @@ app.UseSwaggerUI(options =>
 
 app.UseHttpsRedirection();
 
-app.UseEndpoints(endpoints =>{
-    endpoints.MapControllers().WithOpenApi();
-});
+app.MapControllers().WithOpenApi();
+
 app.UseCors(myAllowSpecificOrigins);
 app.Run();
 
