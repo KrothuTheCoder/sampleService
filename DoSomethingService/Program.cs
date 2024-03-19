@@ -3,6 +3,7 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using System.Reflection;
 using Microsoft.ApplicationInsights.Extensibility;
+using System.Net;
 
 
 var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -108,9 +109,11 @@ app.UseSwaggerUI(options =>
 });
 
 app.UseHttpsRedirection();
-app.UseCors(myAllowSpecificOrigins);
 
-app.MapControllers().WithOpenApi();
+app.UseEndpoints(endpoints =>{
+    endpoints.MapControllers().WithOpenApi();
+});
+app.UseCors(myAllowSpecificOrigins);
 app.Run();
 
 public class ApiExplorerGroupPerVersionConvention : IControllerModelConvention
