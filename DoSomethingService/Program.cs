@@ -32,14 +32,14 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: myAllowSpecificOrigins,
         policy =>
         {
-            policy.AllowAnyOrigin()
+            policy.WithOrigins("http://localhost:3000","http://web.hakabo.com","http://api.hakabo.com","https://api2.ipa.sandbox.net")
             .AllowAnyMethod()
             .AllowAnyHeader();
         });
        
 });
 
-//WithOrigins("*","http://localhost:3000","http://web.hakabo.com","http://*.hakabo.com","https://api2.ipa.sandbox.net")
+//
 builder.Services.AddControllers();
 builder.Services.AddMvc(c=> {
     c.Conventions.Add(new ApiExplorerGroupPerVersionConvention());
@@ -49,6 +49,7 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.AddServer(new OpenApiServer(){
         Url = "https://thedosomethingservice.azurewebsites.net/"
+        //Url = "http://localhost:5150/"
     });
      options.SwaggerDoc("v1", new OpenApiInfo { Title = "My API - V1", Version = "v1" ,
         Description = "An ASP.NET Core Web API for managing ToDo items",
@@ -112,7 +113,7 @@ app.UseSwaggerUI(options =>
 app.UseHttpsRedirection();
 
 
-app.MapControllers().WithOpenApi();
+app.MapControllers();
 
 app.UseCors(myAllowSpecificOrigins);
 app.Run();

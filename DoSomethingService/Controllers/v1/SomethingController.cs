@@ -32,21 +32,28 @@ public class SomethingController : ControllerBase
     /// </summary>
     /// <returns>What happened</returns>
     [HttpGet("DoSomething")]
-    [ApiExplorerSettings(GroupName ="v1")]
+    [ApiExplorerSettings(GroupName = "v1")]
     public IActionResult Get()
     {
-        Dictionary<string, string> headersDictionary = Response.Headers
-        .Concat(Response.Headers)
-        .ToDictionary(
-            header => header.Key,
-            header => string.Join(", ", header.Value.ToString())
-        );
+        // Dictionary<string, string> headersDictionary = Response.Headers
+        //     .Concat(Response.Headers)
+        //     .ToDictionary(
+        //         header => header.Key,
+        //         header => string.Join(", ", header.Value.ToString())
+        //     );
+
+        Dictionary<string, string> stuffToSendAppInsights = new Dictionary<string, string>();
+
+        foreach (var header in Response.Headers)
+        {
+            stuffToSendAppInsights.TryAdd(header.Key, header.Value.ToString());
+        }
+        
         // var doSomethingDictionary = new Dictionary<string, string>();
         //  doSomethingDictionary.Add("EventName", "Api Call");
         //  doSomethingDictionary.Add("Response Headers",Response.Headers.AccessControlAllowOrigin);
-        _telemetryClient.TrackEvent("DoSomething", headersDictionary);
+        _telemetryClient.TrackEvent("DoSomething", stuffToSendAppInsights);
         return ConvertToJsonObject("You wanted me to do something, there I did something");
-   
     }
 
 
@@ -58,14 +65,14 @@ public class SomethingController : ControllerBase
     {
         //Response.Headers.Add("Access-Control-Allow-Origin", "https://web.hakabo.com");
         Response.Headers.Add("x-peters-test", "https://web.hakabo.com");
-        var jsonString = "{\"key\":\""+input+"\"}";
+        var jsonString = "{\"key\":\"" + input + "\"}";
         //string jsonString = $"{\"key\":\"{input}\"}"; 
         return new ContentResult
-            {
-                Content = jsonString,
-                ContentType = "application/json",
-                StatusCode = 200   // You can set the status code as needed
-            };
+        {
+            Content = jsonString,
+            ContentType = "application/json",
+            StatusCode = 200 // You can set the status code as needed
+        };
     }
 
     /// <summary>
@@ -75,19 +82,19 @@ public class SomethingController : ControllerBase
     /// <param name="whatToDo">The thing you want it to do</param>
     /// <returns>What happened</returns>
     [HttpGet("WhatSomethingToDo")]
-    [ApiExplorerSettings(GroupName ="v1")]
+    [ApiExplorerSettings(GroupName = "v1")]
     public IActionResult Get(string whatToDo)
     {
         return ConvertToJsonObject("You wanted me to {whatToDo}, there I did something");
     }
-   
+
     /// <summary>
     /// If you want to post something for it to do
     /// </summary>
     /// <param name="whatToDo">The thing you want it to do</param>
     /// <returns>What happened</returns>
     [HttpPost("PostSomething")]
-    [ApiExplorerSettings(GroupName ="v1")]
+    [ApiExplorerSettings(GroupName = "v1")]
     public IActionResult Post(string whatToDo)
     {
         return ConvertToJsonObject("This was passed to me {whatToDo}, there I did something");
