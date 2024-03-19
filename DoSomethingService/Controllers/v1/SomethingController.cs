@@ -35,9 +35,16 @@ public class SomethingController : ControllerBase
     [ApiExplorerSettings(GroupName ="v1")]
     public IActionResult Get()
     {
-        var doSomethingDictionary = new Dictionary<string, string>();
-         doSomethingDictionary.Add("EventName", "Api Call");
-        _telemetryClient.TrackEvent("DoSomething", doSomethingDictionary);
+        Dictionary<string, string> headersDictionary = Response.Headers
+        .Concat(Response.Headers)
+        .ToDictionary(
+            header => header.Key,
+            header => string.Join(", ", header.Value.ToString())
+        );
+        // var doSomethingDictionary = new Dictionary<string, string>();
+        //  doSomethingDictionary.Add("EventName", "Api Call");
+        //  doSomethingDictionary.Add("Response Headers",Response.Headers.AccessControlAllowOrigin);
+        _telemetryClient.TrackEvent("DoSomething", headersDictionary);
         return ConvertToJsonObject("You wanted me to do something, there I did something");
    
     }

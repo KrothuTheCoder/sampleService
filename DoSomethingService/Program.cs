@@ -33,6 +33,7 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy.AllowAnyOrigin()
+            .AllowAnyMethod()
             .AllowAnyHeader();
         });
        
@@ -109,6 +110,7 @@ app.UseSwaggerUI(options =>
 });
 
 app.UseHttpsRedirection();
+
 
 app.MapControllers().WithOpenApi();
 
