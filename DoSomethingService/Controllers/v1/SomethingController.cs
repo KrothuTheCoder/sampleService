@@ -1,4 +1,5 @@
 using Microsoft.ApplicationInsights;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DoSomethingService.Controllers.v1;
@@ -9,6 +10,7 @@ namespace DoSomethingService.Controllers.v1;
 [Route("api/v1/[controller]")]
 [ApiController]
 [ApiVersion("1.0")]
+[EnableCors]
 public class SomethingController : ControllerBase
 {
     private readonly ILogger<SomethingController> _logger;
