@@ -26,7 +26,7 @@ aiOptions.EnableDependencyTrackingTelemetryModule = true;
 builder.Services.AddApplicationInsightsTelemetry(aiOptions);
 
 var apiVersions = new Dictionary<string, string>();
-//
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: myAllowSpecificOrigins,
