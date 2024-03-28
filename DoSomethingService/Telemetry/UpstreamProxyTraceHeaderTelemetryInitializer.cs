@@ -20,29 +20,29 @@ public class UpstreamProxyTraceHeaderTelemetryInitializer : TelemetryInitializer
 
             requestTelemetry.Context.Cloud.RoleName = "DoSomething Service";
 
-            if ( null == this.HeaderNames || this.HeaderNames.Count==0) {
-                    return;
-            }
+            // if ( null == this.HeaderNames || this.HeaderNames.Count==0) {
+            //         return;
+            // }
             if (telemetry == null)  {
                 throw new ArgumentNullException(nameof(telemetry));
             }
             if (requestTelemetry == null) {
                 throw new ArgumentNullException(nameof(requestTelemetry));
             }
-            if ( telemetry== requestTelemetry ) { // only do this for the request telemetry 
-                if (platformContext == null) {
-                    throw new ArgumentNullException(nameof(platformContext));
-                }                 
-                if (platformContext.Request?.Headers != null && platformContext.Request?.Headers.Count> 0) {
-                    foreach (var name in this.HeaderNames) {
-                        var value = GetHeaderValue(name,platformContext.Request.Headers);
+            // if ( telemetry== requestTelemetry ) { // only do this for the request telemetry 
+            //     if (platformContext == null) {
+            //         throw new ArgumentNullException(nameof(platformContext));
+            //     }                 
+            //     if (platformContext.Request?.Headers != null && platformContext.Request?.Headers.Count> 0) {
+            //         foreach (var name in this.HeaderNames) {
+            //             var value = GetHeaderValue(name,platformContext.Request.Headers);
 
-                        if ( !String.IsNullOrEmpty(value)) {
-                            AddReference(requestTelemetry,name, value);
-                        }
-                    }
-                }
-            }
+            //             if ( !String.IsNullOrEmpty(value)) {
+            //                 AddReference(requestTelemetry,name, value);
+            //             }
+            //         }
+            //     }
+            // }
         }
 
         private string GetHeaderValue(string headerNameToSearch, IHeaderDictionary requestHeaders){
