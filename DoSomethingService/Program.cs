@@ -22,6 +22,7 @@ aiOptions.EnableAdaptiveSampling = false;
 aiOptions.EnableQuickPulseMetricStream = true;
 aiOptions.EnableRequestTrackingTelemetryModule = true;
 aiOptions.EnableDependencyTrackingTelemetryModule = true;
+aiOptions.ConnectionString = "InstrumentationKey=7b24722a-8ac4-4ed7-9bcd-fee12a667e07;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/";
 
 builder.Services.AddApplicationInsightsTelemetry(aiOptions);
 
@@ -29,7 +30,7 @@ var apiVersions = new Dictionary<string, string>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: myAllowSpecificOrigins,
+    options.AddDefaultPolicy(
         policy =>
         {
             policy.WithOrigins("http://localhost:3000","http://web.hakabo.com","http://api.hakabo.com","https://api2.ipa.sandbox.net")
@@ -48,8 +49,8 @@ builder.Services.AddMvc(c=> {
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddServer(new OpenApiServer(){
-        Url = "https://thedosomethingservice.azurewebsites.net/"
-        //Url = "http://localhost:5150/"
+        //Url = "https://thedosomethingservice.azurewebsites.net/"
+        Url = "http://localhost:5150/"
     });
      options.SwaggerDoc("v1", new OpenApiInfo { Title = "My API - V1", Version = "v1" ,
         Description = "An ASP.NET Core Web API for managing ToDo items",
@@ -115,7 +116,7 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 
-app.UseCors(myAllowSpecificOrigins);
+app.UseCors();
 app.Run();
 
 public class ApiExplorerGroupPerVersionConvention : IControllerModelConvention
