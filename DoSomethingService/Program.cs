@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using System.Reflection;
 using Microsoft.ApplicationInsights.Extensibility;
 using System.Net;
+using DoSomethingService.Telemetry;
 
 
 var myAllowSpecificOrigins = "myAllowSpecificOrigins";
