@@ -47,6 +47,11 @@ namespace DoSomethingService.Controllers.v1;
                 return StatusCode((int)HttpStatusCode.Conflict, new B2CResponseModel("Your email address can't start with 'test'", HttpStatusCode.Conflict));
             }
 
+            if (!inputClaims.email.ToLower().EndsWith("@insightinvestment.com"))
+            {
+                return StatusCode((int)HttpStatusCode.Conflict, new B2CResponseModel("Your email address has not been registered, please contact Bob", HttpStatusCode.Conflict));
+            }
+
             try
             {
                 return StatusCode((int)HttpStatusCode.OK, new B2CResponseModel(string.Empty, HttpStatusCode.OK)
