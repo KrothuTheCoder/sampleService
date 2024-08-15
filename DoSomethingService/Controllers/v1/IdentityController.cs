@@ -13,6 +13,7 @@ namespace DoSomethingService.Controllers.v1;
     public class IdentityController : Controller
     {
         [HttpPost("validate")]
+        [ApiExplorerSettings(GroupName = "v1")]
         public async Task<IActionResult> validate(){
             
             string input = null;
