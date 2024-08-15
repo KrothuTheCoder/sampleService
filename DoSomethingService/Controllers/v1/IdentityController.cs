@@ -1,21 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Mail;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using DoSomethingService.Models;
+using Microsoft.AspNetCore.Cors;
 
 namespace DoSomethingService.Controllers.v1;
 
-    [Route("api/[controller]/[action]")]
+[Route("api/v1/[controller]")]
+[ApiController]
+[ApiVersion("1.0")]
+[EnableCors()]
     public class IdentityController : Controller
     {
-        [HttpPost(Name = "validate")]
+        [HttpPost("validate")]
         public async Task<IActionResult> validate(){
             
             string input = null;
