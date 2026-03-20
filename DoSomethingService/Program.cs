@@ -1,31 +1,17 @@
-using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using System.Reflection;
-using Microsoft.ApplicationInsights.Extensibility;
-using System.Net;
-using DoSomethingService.Telemetry;
+using Microsoft.OpenApi;
 
 
 var myAllowSpecificOrigins = "myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton<ITelemetryInitializer, UpstreamProxyTraceHeaderTelemetryInitializer>((serviceProvider)=> {
-    var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
-    // Az App Gateway and Front door trace/correlation headers are defaulted
-    return new UpstreamProxyTraceHeaderTelemetryInitializer(httpContextAccessor);
-});
+
 
 builder.Services.AddHttpContextAccessor();
 
-var aiOptions = new Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions();
-aiOptions.EnableAdaptiveSampling = false;
-aiOptions.EnableQuickPulseMetricStream = true;
-aiOptions.EnableRequestTrackingTelemetryModule = true;
-aiOptions.EnableDependencyTrackingTelemetryModule = true;
-aiOptions.ConnectionString = "InstrumentationKey=7b24722a-8ac4-4ed7-9bcd-fee12a667e07;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/";
 
-builder.Services.AddApplicationInsightsTelemetry(aiOptions);
 
 var apiVersions = new Dictionary<string, string>();
 
@@ -74,7 +60,7 @@ builder.Services.AddSwaggerGen(options =>
             Name = "Example Contact",
             Url = new Uri("https://example.com/contact")
         },
-        License = new OpenApiLicense
+        License = new OpenApiLicense()
         {
             Name = "Example License",
             Url = new Uri("https://example.com/license")

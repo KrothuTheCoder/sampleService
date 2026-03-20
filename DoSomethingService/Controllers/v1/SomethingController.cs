@@ -1,4 +1,3 @@
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,16 +13,16 @@ namespace DoSomethingService.Controllers.v1;
 public class SomethingController : ControllerBase
 {
     private readonly ILogger<SomethingController> _logger;
-    private readonly TelemetryClient _telemetryClient;
+    // private readonly ITelemetryContext _telemetryClient;
 
 
     /// <summary>
     /// Setting up the code so it can do things
     /// </summary>
     /// <param name="logger">The logger so we know if things have been done</param>
-    public SomethingController(ILogger<SomethingController> logger, TelemetryClient telemetryClient)
+    public SomethingController(ILogger<SomethingController> logger)
     {
-        _telemetryClient = telemetryClient;
+        // _telemetryClient = telemetryClient;
         _logger = logger;
     }
 
@@ -44,7 +43,7 @@ public class SomethingController : ControllerBase
         stuffToSendAppInsights.Add("EventName", "Api Call");
         stuffToSendAppInsights.Add("x-event-type", "Something");
         
-        _telemetryClient.TrackEvent("DoSomething", stuffToSendAppInsights);
+        // _telemetryClient.TrackEvent("DoSomething", stuffToSendAppInsights);
         return ConvertToJsonObject("You wanted me to do something, there I did something");
     }
 
