@@ -1,56 +1,56 @@
-using Microsoft.ApplicationInsights;
+using DoSomethingService.Configuration.Telemetry;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using ILogger = Serilog.ILogger;
 
 namespace DoSomethingService.Controllers.v1;
 
 /// <summary>
-/// This is an api to return some data in a made up senario
+///     This is an api to return some data in a made up senario
 /// </summary>
 [Route("api/v1/[controller]")]
 [ApiController]
 [ApiVersion("1.0")]
-[EnableCors()]
+[EnableCors]
 public class SomethingController : ControllerBase
 {
-    private readonly ILogger<SomethingController> _logger;
-    private readonly TelemetryClient _telemetryClient;
+    private readonly ILogger _logger;
+    private readonly ITelemetryContext _telemetryContext;
 
 
     /// <summary>
-    /// Setting up the code so it can do things
+    ///     Setting up the code so it can do things
     /// </summary>
+    /// <param name="telemetryContext"></param>
     /// <param name="logger">The logger so we know if things have been done</param>
-    public SomethingController(ILogger<SomethingController> logger, TelemetryClient telemetryClient)
+    public SomethingController(ITelemetryContext telemetryContext, ILogger logger)
     {
-        _telemetryClient = telemetryClient;
+        _telemetryContext = telemetryContext;
         _logger = logger;
     }
 
     /// <summary>
-    /// If you need to do something then it will
+    ///     If you need to do something then it will
     /// </summary>
     /// <returns>What happened</returns>
     [HttpGet("DoSomething")]
     [ApiExplorerSettings(GroupName = "v1")]
     public IActionResult Get()
     {
-        Dictionary<string, string> stuffToSendAppInsights = new Dictionary<string, string>();
+        using var someActivity = _telemetryContext.ActivitySource.StartActivity("DoSomething");
 
-        foreach (var header in Response.Headers)
-        {
-            stuffToSendAppInsights.TryAdd(header.Key, header.Value.ToString());
-        }
+        var stuffToSendAppInsights = new Dictionary<string, string>();
+
+        foreach (var header in Response.Headers) stuffToSendAppInsights.TryAdd(header.Key, header.Value.ToString());
         stuffToSendAppInsights.Add("EventName", "Api Call");
         stuffToSendAppInsights.Add("x-event-type", "Something");
-        
-        _telemetryClient.TrackEvent("DoSomething", stuffToSendAppInsights);
+
         return ConvertToJsonObject("You wanted me to do something, there I did something");
     }
 
 
     /// <summary>
-    /// If you need to do something then it will
+    ///     If you need to do something then it will
     /// </summary>
     /// <returns>What happened</returns>
     private ContentResult ConvertToJsonObject(string input)
@@ -68,8 +68,8 @@ public class SomethingController : ControllerBase
     }
 
     /// <summary>
-    /// If you need to do something then, just tell it
-    /// what you want to do
+    ///     If you need to do something then, just tell it
+    ///     what you want to do
     /// </summary>
     /// <param name="whatToDo">The thing you want it to do</param>
     /// <returns>What happened</returns>
@@ -81,7 +81,7 @@ public class SomethingController : ControllerBase
     }
 
     /// <summary>
-    /// If you want to post something for it to do
+    ///     If you want to post something for it to do
     /// </summary>
     /// <param name="whatToDo">The thing you want it to do</param>
     /// <returns>What happened</returns>
