@@ -1,4 +1,5 @@
 using System.Net;
+using DoSomethingService.Configuration.Telemetry;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -17,25 +18,25 @@ public sealed record GrafanaOptions(
 
 public static class GrafanaServiceCollectionExtensions
 {
-
-    private static ResourceBuilder _appResourceBuilder;
+    private static ResourceBuilder? _appResourceBuilder;
 
     public static void AddGrafanaTelemetry(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
         var grafanaOptions = configuration.GetSection("Grafana").Get<GrafanaOptions>();
-        var telemetryContext = new TelemetryContext(grafanaOptions.ServiceName,"1.0");
-        
-        services.AddSingleton(telemetryContext);
-        
+        var telemetryContext = new TelemetryContext(grafanaOptions.ServiceName, "1.0");
+
+        services.AddSingleton<ITelemetryContext>(telemetryContext);
+
         _appResourceBuilder = ResourceBuilder.CreateDefault()
-            .AddService(serviceName: grafanaOptions.ServiceName);
+            .AddService(grafanaOptions.ServiceName);
 
         services.AddOpenTelemetry()
             .WithMetrics(metricOptions =>
             {
-                Log.Information("Adding open telemetry for service {service} in env {env}", grafanaOptions.ServiceName, grafanaOptions.Environment);
+                Log.Information("Adding open telemetry for service {service} in env {env}", grafanaOptions.ServiceName,
+                    grafanaOptions.Environment);
                 metricOptions
                     .AddAspNetCoreInstrumentation()
                     .SetResourceBuilder(_appResourceBuilder)
@@ -49,7 +50,8 @@ public static class GrafanaServiceCollectionExtensions
             })
             .WithTracing(tracingOptions =>
             {
-                Log.Information("Adding tracing for service {service}", grafanaOptions.ServiceName, grafanaOptions.Environment);
+                Log.Information("Adding tracing for service {service}", grafanaOptions.ServiceName,
+                    grafanaOptions.Environment);
 
                 tracingOptions
                     .AddSource(grafanaOptions.ServiceName)
@@ -68,7 +70,7 @@ public static class GrafanaServiceCollectionExtensions
     {
         return ResourceBuilder.CreateDefault()
             .AddService(
-                serviceName: grafanaOptions.ServiceName,
+                grafanaOptions.ServiceName,
                 serviceVersion: "1.0.0",
                 autoGenerateServiceInstanceId: false,
                 serviceInstanceId: Dns.GetHostName())
@@ -86,7 +88,7 @@ public static class GrafanaServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(configuration);
 
         var grafanaOptions = configuration.GetSection("Grafana").Get<GrafanaOptions>();
-        
+
         Log.Information("Adding open telemetry log sink url: {LogUrl}", grafanaOptions.HttpUrl);
 
         return loggerSinkConfiguration.OpenTelemetry(options =>
