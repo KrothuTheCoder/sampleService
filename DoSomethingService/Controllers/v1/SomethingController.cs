@@ -16,8 +16,7 @@ public class SomethingController : ControllerBase
 {
     private readonly ILogger _logger;
     private readonly ITelemetryContext _telemetryContext;
-
-
+    
     /// <summary>
     ///     Setting up the code so it can do things
     /// </summary>
@@ -37,6 +36,7 @@ public class SomethingController : ControllerBase
     [ApiExplorerSettings(GroupName = "v1")]
     public IActionResult Get()
     {
+        _logger.Information("DoSomething Called");
         using var someActivity = _telemetryContext.ActivitySource.StartActivity("DoSomething");
 
         var stuffToSendAppInsights = new Dictionary<string, string>();
@@ -47,7 +47,6 @@ public class SomethingController : ControllerBase
 
         return ConvertToJsonObject("You wanted me to do something, there I did something");
     }
-
 
     /// <summary>
     ///     If you need to do something then it will
