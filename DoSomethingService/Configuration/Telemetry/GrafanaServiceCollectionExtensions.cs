@@ -1,5 +1,5 @@
 using System.Net;
-using DoSomethingService.Configuration.Telemetry;
+using System.Reflection;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -8,7 +8,7 @@ using Serilog;
 using Serilog.Configuration;
 using Serilog.Sinks.OpenTelemetry;
 
-namespace DoSomethingService.Telemetry;
+namespace DoSomethingService.Configuration.Telemetry;
 
 public sealed record GrafanaOptions(
     string GrpcUrl,
@@ -18,83 +18,71 @@ public sealed record GrafanaOptions(
 
 public static class GrafanaServiceCollectionExtensions
 {
-    private static ResourceBuilder? _appResourceBuilder;
-
     public static void AddGrafanaTelemetry(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        var grafanaOptions = configuration.GetSection("Grafana").Get<GrafanaOptions>();
-        var telemetryContext = new TelemetryContext(grafanaOptions.ServiceName, "1.0");
+        var grafanaOptions = configuration.GetSection("Grafana").Get<GrafanaOptions>()
+            ?? throw new InvalidOperationException("Missing required configuration section 'Grafana'.");
 
+        var telemetryContext = new TelemetryContext(grafanaOptions.ServiceName, ServiceVersion);
         services.AddSingleton<ITelemetryContext>(telemetryContext);
 
-        _appResourceBuilder = ResourceBuilder.CreateDefault()
-            .AddService(grafanaOptions.ServiceName);
+        var resourceBuilder = BuildResourceBuilder(grafanaOptions);
 
         services.AddOpenTelemetry()
             .WithMetrics(metricOptions =>
             {
-                Log.Information("Adding open telemetry for service {service} in env {env}", grafanaOptions.ServiceName,
-                    grafanaOptions.Environment);
+                Log.Information("Adding open telemetry for service {service} in env {env}",
+                    grafanaOptions.ServiceName, grafanaOptions.Environment);
                 metricOptions
                     .AddAspNetCoreInstrumentation()
-                    .SetResourceBuilder(_appResourceBuilder)
+                    .SetResourceBuilder(resourceBuilder)
+                    .AddRuntimeInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddProcessInstrumentation()
+                    .AddMeter("health.status")
                     .AddOtlpExporter(options =>
                     {
-                        options.Endpoint = new Uri(grafanaOptions.GrpcUrl);
-                        options.Protocol = OtlpExportProtocol.Grpc;
+                        options.Endpoint = new Uri($"{grafanaOptions.HttpUrl}/v1/metrics");
+                        options.Protocol = OtlpExportProtocol.HttpProtobuf;
                     });
             })
             .WithTracing(tracingOptions =>
             {
-                Log.Information("Adding tracing for service {service}", grafanaOptions.ServiceName,
-                    grafanaOptions.Environment);
+                Log.Information("Adding tracing for service {service} in env {env}",
+                    grafanaOptions.ServiceName, grafanaOptions.Environment);
 
                 tracingOptions
                     .AddSource(grafanaOptions.ServiceName)
-                    .SetResourceBuilder(_appResourceBuilder)
+                    .SetResourceBuilder(resourceBuilder)
+                    .AddProcessor<HealthTraceFilter>()
                     .AddHttpClientInstrumentation()
                     .AddAspNetCoreInstrumentation()
                     .AddOtlpExporter(options =>
                     {
-                        options.Endpoint = new Uri(grafanaOptions.GrpcUrl);
-                        options.Protocol = OtlpExportProtocol.Grpc;
+                        options.Endpoint = new Uri($"{grafanaOptions.HttpUrl}/v1/traces");
+                        options.Protocol = OtlpExportProtocol.HttpProtobuf;
                     });
             });
     }
 
-    private static ResourceBuilder CreateAppResourceBuilder(GrafanaOptions grafanaOptions)
-    {
-        return ResourceBuilder.CreateDefault()
-            .AddService(
-                grafanaOptions.ServiceName,
-                serviceVersion: "1.0.0",
-                autoGenerateServiceInstanceId: false,
-                serviceInstanceId: Dns.GetHostName())
-            .AddAttributes([
-                new KeyValuePair<string, object>("env", grafanaOptions.Environment),
-                new KeyValuePair<string, object>("serviceName", grafanaOptions.ServiceName)
-            ]);
-    }
-
     public static LoggerConfiguration AddGrafanaLogging(this LoggerSinkConfiguration loggerSinkConfiguration,
         IConfiguration configuration,
-        Action<OpenTelemetrySinkOptions> congifure = null)
+        Action<OpenTelemetrySinkOptions>? configure = null)
     {
         ArgumentNullException.ThrowIfNull(loggerSinkConfiguration);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        var grafanaOptions = configuration.GetSection("Grafana").Get<GrafanaOptions>();
+        var grafanaOptions = configuration.GetSection("Grafana").Get<GrafanaOptions>()
+            ?? throw new InvalidOperationException("Missing required configuration section 'Grafana'.");
 
         Log.Information("Adding open telemetry log sink url: {LogUrl}", grafanaOptions.HttpUrl);
 
         return loggerSinkConfiguration.OpenTelemetry(options =>
         {
-            options.LogsEndpoint = grafanaOptions.HttpUrl;
-            options.Protocol = OtlpProtocol.Grpc;
+            options.LogsEndpoint = $"{grafanaOptions.HttpUrl}/v1/logs";
+            options.Protocol = OtlpProtocol.HttpProtobuf;
             options.IncludedData =
                 IncludedData.SpanIdField
                 | IncludedData.TraceIdField
@@ -102,12 +90,26 @@ public static class GrafanaServiceCollectionExtensions
                 | IncludedData.MessageTemplateMD5HashAttribute;
             options.ResourceAttributes = new Dictionary<string, object>
             {
-                ["ServiceName"] = grafanaOptions.ServiceName,
-                ["Environment"] = grafanaOptions.Environment,
-                ["ServiceVersion"] = "1.0.0",
-                ["InstanceId"] = Dns.GetHostName()
+                ["service.name"] = grafanaOptions.ServiceName,
+                ["deployment.environment"] = grafanaOptions.Environment,
+                ["service.version"] = ServiceVersion,
+                ["service.instance.id"] = Dns.GetHostName()
             };
-            congifure?.Invoke(options);
+            configure?.Invoke(options);
         });
     }
+
+    private static string ServiceVersion =>
+        Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "1.0.0";
+
+    private static ResourceBuilder BuildResourceBuilder(GrafanaOptions grafanaOptions) =>
+        ResourceBuilder.CreateDefault()
+            .AddService(
+                grafanaOptions.ServiceName,
+                serviceVersion: ServiceVersion,
+                autoGenerateServiceInstanceId: false,
+                serviceInstanceId: Dns.GetHostName())
+            .AddAttributes([
+                new KeyValuePair<string, object>("deployment.environment", grafanaOptions.Environment)
+            ]);
 }

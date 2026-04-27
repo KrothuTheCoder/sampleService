@@ -1,11 +1,10 @@
-using System.Diagnostics;
 using DoSomethingService.Configuration;
 using DoSomethingService.Configuration.Swagger;
 using DoSomethingService.Configuration.Telemetry;
-using DoSomethingService.Telemetry;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Serilog;
+using Serilog.Sinks.Grafana.Loki;
 
 namespace DoSomethingService;
 
@@ -17,9 +16,9 @@ public class Startup
     {
         Configuration = configuration;
         _environment = environment;
-        Activity.DefaultIdFormat = ActivityIdFormat.W3C;
     }
-
+    private const string OutputTemplate =
+        "{Timestamp:dd-MM-yyyy HH:mm:ss} [{Level:u3}] [{ThreadId}] {Message}{NewLine}{Exception}";
     public IConfiguration Configuration { get; }
 
     public void ConfigureServices(IServiceCollection services)
@@ -27,8 +26,8 @@ public class Startup
         Log.Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(Configuration)
             .Enrich.FromLogContext()
+            .WriteTo.Console(outputTemplate: OutputTemplate)
             .WriteTo.AddGrafanaLogging(Configuration)
-            .WriteTo.Console()
             .CreateLogger();
 
         services.AddSingleton(Log.Logger);
@@ -47,7 +46,8 @@ public class Startup
 
         services.AddControllers();
         services.AddMvc(c => { c.Conventions.Add(new ApiExplorerGroupPerVersionConvention()); });
-        services.AddHealthChecks().AddCheck("self", () => HealthCheckResult.Healthy());
+        services.AddHealthChecks()
+            .AddCheck("self", () => HealthCheckResult.Healthy());
         services.SetupSwaggerGen(Configuration);
     }
 

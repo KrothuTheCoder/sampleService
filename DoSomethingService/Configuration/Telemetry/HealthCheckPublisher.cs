@@ -1,46 +1,47 @@
 using System.Diagnostics.Metrics;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using ILogger = Serilog.ILogger;
 
 namespace DoSomethingService.Configuration.Telemetry;
 
-public class HealthCheckPublisher : IHealthCheckPublisher
+public class HealthCheckPublisher : IHealthCheckPublisher, IDisposable
 {
+    private readonly Meter _meter;
     private readonly Gauge<int> _checkHealthGauge;
     private readonly Gauge<int> _overallHealthGauge;
-    private ILogger<HealthCheckPublisher> _logger;
+    private readonly ILogger _logger;
 
-    public HealthCheckPublisher(ILogger<HealthCheckPublisher> logger, ITelemetryContext telemetryContext)
+    public HealthCheckPublisher(ILogger logger, ITelemetryContext telemetryContext)
     {
-        var healthMeter = new Meter("health.status");
-
-        _overallHealthGauge = healthMeter.CreateGauge<int>(
+        _meter = new Meter("health.status");
+        _logger = logger.ForContext<HealthCheckPublisher>();
+        _overallHealthGauge = _meter.CreateGauge<int>(
             "overallHealth", description: "Overall health status 0 = unhealthy, 1 = degraded, 2 = healthy");
-        _checkHealthGauge = healthMeter.CreateGauge<int>(
-            "checkStatus", description: "Check status 0 = healthy, 1 = degraded, 2 = healthy");
+        _checkHealthGauge = _meter.CreateGauge<int>(
+            "checkStatus", description: "Check status 0 = unhealthy, 1 = degraded, 2 = healthy");
     }
 
     public Task PublishAsync(HealthReport report, CancellationToken cancellationToken)
     {
         _overallHealthGauge.Record(Map(report.Status));
-
+        _logger.Information("Health check completed {status}", report.Status);
         foreach (var (name, entry) in report.Entries)
             _checkHealthGauge.Record(Map(entry.Status),
                 new KeyValuePair<string, object?>("check.name", name));
 
         if (report.Status != HealthStatus.Healthy)
-            _logger.LogWarning("Health check failed {status}, checks: {checks}", report.Status,
+            _logger.Warning("Health check failed {status}, checks: {checks}", report.Status,
                 string.Join(", ", report.Entries.Select(entry => $"{entry.Key}={entry.Value.Status}")));
         return Task.CompletedTask;
     }
 
-    private static int Map(HealthStatus status)
+    public void Dispose() => _meter.Dispose();
+
+    private static int Map(HealthStatus status) => status switch
     {
-        return status switch
-        {
-            HealthStatus.Unhealthy => 0,
-            HealthStatus.Degraded => 1,
-            HealthStatus.Healthy => 2,
-            _ => 0
-        };
-    }
+        HealthStatus.Unhealthy => 0,
+        HealthStatus.Degraded => 1,
+        HealthStatus.Healthy => 2,
+        _ => 0
+    };
 }
