@@ -15,7 +15,8 @@ public class GrafanaServiceCollectionExtensionsTests
                 ["Grafana:ServiceName"] = "test-service",
                 ["Grafana:Environment"] = "test",
                 ["Grafana:HttpUrl"] = "http://localhost:4318",
-                ["Grafana:GrpcUrl"] = "http://localhost:4317"
+                ["Grafana:GrpcUrl"] = "http://localhost:4317",
+                ["Grafana:PyroscopeUrl"] = "http://localhost:4040"
             })
             .Build();
 

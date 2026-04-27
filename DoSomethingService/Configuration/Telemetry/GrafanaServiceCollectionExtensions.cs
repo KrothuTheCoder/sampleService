@@ -14,7 +14,8 @@ public sealed record GrafanaOptions(
     string GrpcUrl,
     string HttpUrl,
     string ServiceName,
-    string Environment);
+    string Environment,
+    string? PyroscopeUrl);
 
 public static class GrafanaServiceCollectionExtensions
 {
