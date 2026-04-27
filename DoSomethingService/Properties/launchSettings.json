@@ -8,7 +8,13 @@
       "launchUrl": "swagger",
       "applicationUrl": "http://localhost:5150",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "CORECLR_ENABLE_PROFILING": "1",
+        "CORECLR_PROFILER": "{B6024BDE-4B4D-4CF0-9B65-FB3A40A50869}",
+        "CORECLR_PROFILER_PATH": "Pyroscope.Profiler.Native.dylib",
+        "PYROSCOPE_PROFILING_ALLOCATION_ENABLED": "true",
+        "PYROSCOPE_PROFILING_EXCEPTION_ENABLED": "true",
+        "PYROSCOPE_PROFILING_LOCK_ENABLED": "true"
       }
     },
     "https": {
@@ -18,7 +24,13 @@
       "launchUrl": "swagger",
       "applicationUrl": "https://localhost:7036;http://localhost:5150",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "CORECLR_ENABLE_PROFILING": "1",
+        "CORECLR_PROFILER": "{B6024BDE-4B4D-4CF0-9B65-FB3A40A50869}",
+        "CORECLR_PROFILER_PATH": "Pyroscope.Profiler.Native.dylib",
+        "PYROSCOPE_PROFILING_ALLOCATION_ENABLED": "true",
+        "PYROSCOPE_PROFILING_EXCEPTION_ENABLED": "true",
+        "PYROSCOPE_PROFILING_LOCK_ENABLED": "true"
       }
     }
   }
