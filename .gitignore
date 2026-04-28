@@ -4,3 +4,4 @@
 obj
 bin
 .vscode/
+DoSomethingService/Properties/launchSettings.json
