@@ -7,19 +7,22 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Grafana.OpenTelemetry" Version="1.5.3" />
-        <PackageReference Include="Grafana.OpenTelemetry.Base" Version="1.5.3" />
+        <PackageReference Include="Grafana.OpenTelemetry" Version="1.7.0" />
+        <PackageReference Include="Grafana.OpenTelemetry.Base" Version="1.7.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
+        <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.15.3" />
         <PackageReference Include="Pyroscope" Version="0.14.5" />
         <PackageReference Include="Pyroscope.OpenTelemetry" Version="0.4.0" />
+        <PackageReference Include="Pyroscope.OpenTracing" Version="0.4.0" />
         <PackageReference Include="Serilog" Version="4.3.1" />
         <PackageReference Include="Serilog.Settings.Configuration" Version="10.0.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
         <PackageReference Include="Serilog.Sinks.Grafana.Loki" Version="8.3.2" />
         <PackageReference Include="Serilog.Sinks.OpenTelemetry" Version="4.2.0" />
+        <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="10.0.7" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.5" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     </ItemGroup>

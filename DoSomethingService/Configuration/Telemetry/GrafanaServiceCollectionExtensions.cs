@@ -15,7 +15,8 @@ public sealed record GrafanaOptions(
     string HttpUrl,
     string ServiceName,
     string Environment,
-    string? PyroscopeUrl);
+    string? PyroscopeUrl,
+    string? PyroscopeBasicAuthUser = null);
 
 public static class GrafanaServiceCollectionExtensions
 {
@@ -58,6 +59,8 @@ public static class GrafanaServiceCollectionExtensions
                     .AddSource(grafanaOptions.ServiceName)
                     .SetResourceBuilder(resourceBuilder)
                     .AddProcessor<HealthTraceFilter>()
+                    .AddProcessor(new Pyroscope.OpenTelemetry.PyroscopeSpanProcessor())
+                    .AddConsoleExporter()
                     .AddHttpClientInstrumentation()
                     .AddAspNetCoreInstrumentation()
                     .AddOtlpExporter(options =>

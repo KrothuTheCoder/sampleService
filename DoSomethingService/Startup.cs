@@ -32,7 +32,7 @@ public class Startup
 
         services.AddSingleton(Log.Logger);
         services.AddGrafanaTelemetry(Configuration);
-        services.AddGrafanaProfiling(Configuration);
+        //services.AddGrafanaProfiling(Configuration);
         services.SetupCors(Configuration);
 
         // Now set up a health check publisher

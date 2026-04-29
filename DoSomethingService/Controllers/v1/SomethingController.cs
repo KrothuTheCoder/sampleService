@@ -38,13 +38,14 @@ public class SomethingController : ControllerBase
     {
         _logger.Information("DoSomething Called");
         using var someActivity = _telemetryContext.ActivitySource.StartActivity("DoSomething");
+        {
+            someActivity.AddTag("input", "AskedToDoSomething");
+            var stuffToSendAppInsights = new Dictionary<string, string>();
 
-        var stuffToSendAppInsights = new Dictionary<string, string>();
-
-        foreach (var header in Response.Headers) stuffToSendAppInsights.TryAdd(header.Key, header.Value.ToString());
-        stuffToSendAppInsights.Add("EventName", "Api Call");
-        stuffToSendAppInsights.Add("x-event-type", "Something");
-
+            foreach (var header in Response.Headers) stuffToSendAppInsights.TryAdd(header.Key, header.Value.ToString());
+            stuffToSendAppInsights.Add("EventName", "Api Call");
+            stuffToSendAppInsights.Add("x-event-type", "Something");
+        }
         return ConvertToJsonObject("You wanted me to do something, there I did something");
     }
 
@@ -54,16 +55,20 @@ public class SomethingController : ControllerBase
     /// <returns>What happened</returns>
     private ContentResult ConvertToJsonObject(string input)
     {
-        //Response.Headers.Add("Access-Control-Allow-Origin", "https://web.hakabo.com");
-        Response.Headers.Add("x-peters-test", "https://web.hakabo.com");
-        var jsonString = "{\"key\":\"" + input + "\"}";
-        //string jsonString = $"{\"key\":\"{input}\"}"; 
-        return new ContentResult
+        using var convertActivity = _telemetryContext.ActivitySource.StartActivity("ConvertJson");
         {
-            Content = jsonString,
-            ContentType = "application/json",
-            StatusCode = 200 // You can set the status code as needed
-        };
+            convertActivity.AddTag("input", input);
+            
+            Response.Headers.Add("x-peters-test", "https://web.hakabo.com");
+            var jsonString = "{\"key\":\"" + input + "\"}";
+            convertActivity.AddTag("output", jsonString);
+            return new ContentResult
+            {
+                Content = jsonString,
+                ContentType = "application/json",
+                StatusCode = 200 // You can set the status code as needed
+            };
+        }
     }
 
     /// <summary>
